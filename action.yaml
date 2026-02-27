@@ -9,13 +9,13 @@ inputs:
     default: "3.14"
 
   update-targets:
-    description: 'List of scopes/selectors, e.g. ["dependencies"], ["dependencies:packaging"], ["dependency-groups.ci:ruff"]'
+    description: "Comma-separated scopes/selectors, e.g. dependencies, dependencies:packaging, dependency-groups.ci:ruff"
     required: false
-    default: '["dependencies", "dependency-groups", "build-system.requires"]'
+    default: "dependencies, dependency-groups, build-system.requires"
   update-operators:
-    description: 'List of allowed operators to bump, default ["=="]'
+    description: "Comma-separated operators to bump, default =="
     required: false
-    default: '["=="]'
+    default: "=="
 
 runs:
   using: "composite"

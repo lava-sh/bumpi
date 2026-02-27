@@ -38,8 +38,8 @@ jobs:
 
       - uses: lava-sh/bumpi@v1
         with:
-          update-targets: ["dependencies", "dependency-groups", "build-system.requires"]
-          update-operators: ["=="] 
+          update-targets: dependencies, dependency-groups, build-system.requires
+          update-operators: ==
 ```
 
 ## Inputs Action
@@ -49,12 +49,14 @@ jobs:
     - default: `"3.14"`
 
 - `update-targets`:
-    - JSON `list[str]` со списком целей
-    - default: `["dependencies","dependency-groups","build-system.requires"]`
+    - строка со списком целей через запятую
+    - default: `dependencies, dependency-groups, build-system.requires`
 
 - `update-operators`:
-    - JSON `list[str]` с операторами, которые можно обновлять
-    - default: `["=="]`
+    - строка с операторами через запятую
+    - default: `==`
+
+Пробелы вокруг запятых игнорируются: `a,b` и `a, b` обрабатываются одинаково.
 
 ## Форматы `update-targets`
 
@@ -74,11 +76,11 @@ jobs:
 Примеры:
 
 - обновлять только `packaging` из `[project].dependencies`:
-    - `["dependencies:packaging"]`
+    - `dependencies:packaging`
 - обновлять только `ruff` в группе `ci`:
-    - `["dependency-groups.ci:ruff"]`
+    - `dependency-groups.ci:ruff`
 - обновлять всю группу `ci`:
-    - `["dependency-groups.ci"]`
+    - `dependency-groups.ci`
 
 ## Конфликты (ошибка)
 
@@ -115,15 +117,15 @@ bumpi
 С env-переменными:
 
 ```bash
-export BUMPI_UPDATE_TARGETS='["dependencies:packaging","dependency-groups.ci:ruff"]'
-export BUMPI_UPDATE_OPERATORS='["==",">="]'
+export BUMPI_UPDATE_TARGETS='dependencies:packaging, dependency-groups.ci:ruff'
+export BUMPI_UPDATE_OPERATORS='==, >='
 bumpi
 ```
 
 PowerShell:
 
 ```powershell
-$env:BUMPI_UPDATE_TARGETS = '["dependencies:packaging"]'
-$env:BUMPI_UPDATE_OPERATORS = '["=="]'
+$env:BUMPI_UPDATE_TARGETS = "dependencies:packaging"
+$env:BUMPI_UPDATE_OPERATORS = "=="
 bumpi
 ```

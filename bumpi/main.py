@@ -1,4 +1,3 @@
-import json
 import re
 import subprocess
 from dataclasses import dataclass, field
@@ -152,23 +151,16 @@ def render_updates(updates: list[Update]) -> None:
         print(f"{package} {old_version} -> {new_version} | {update.location}")
 
 
+def parse_csv_env(raw: str) -> list[str]:
+    return [item.strip() for item in raw.split(",") if item.strip()]
+
+
 def parse_targets_env(raw: str | None) -> TargetSelection:
     if raw is None or not raw.strip():
         return default_target_selection()
-    try:
-        parsed = json.loads(raw)
-    except json.JSONDecodeError as exc:
-        msg = (
-            "`BUMPI_UPDATE_TARGETS` must be a JSON list[str], "
-            'for example: ["dependencies","dependency-groups.ci:ruff"]'
-        )
-        raise SystemExit(msg) from exc
-    if not isinstance(parsed, list) or not all(isinstance(item, str) for item in parsed):
-        msg = (
-            "`BUMPI_UPDATE_TARGETS` must be a JSON list[str], "
-            'for example: ["dependencies","dependency-groups.ci:ruff"]'
-        )
-        raise SystemExit(msg)
+    parsed = parse_csv_env(raw)
+    if not parsed:
+        return default_target_selection()
 
     selection = TargetSelection()
     for raw_item in parsed:
@@ -322,19 +314,8 @@ def maybe_warn_for_empty_explicit_group(
 def parse_operators_env(raw: str | None) -> set[str]:
     if raw is None or not raw.strip():
         return set(DEFAULT_OPERATORS)
-    try:
-        parsed = json.loads(raw)
-    except json.JSONDecodeError as exc:
-        msg = (
-            '`BUMPI_UPDATE_OPERATORS` must be a JSON list[str], for example: ["==",">="]'
-        )
-        raise SystemExit(msg) from exc
-    if not isinstance(parsed, list) or not all(isinstance(item, str) for item in parsed):
-        msg = (
-            '`BUMPI_UPDATE_OPERATORS` must be a JSON list[str], for example: ["==",">="]'
-        )
-        raise SystemExit(msg)
-    selected = {item.strip() for item in parsed if item.strip()}
+    parsed = parse_csv_env(raw)
+    selected = {item for item in parsed if item}
     if not selected:
         return set(DEFAULT_OPERATORS)
     unknown = selected - SUPPORTED_OPERATORS

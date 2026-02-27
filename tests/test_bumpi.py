@@ -30,20 +30,26 @@ def test_parse_targets_env_default() -> None:
 
 
 def test_parse_targets_env_dependencies_package() -> None:
-    selection = parse_targets_env('["dependencies:packaging"]')
+    selection = parse_targets_env("dependencies:packaging")
     assert selection.dependency_packages == {"packaging"}
     assert not selection.update_dependencies
 
 
 def test_parse_targets_env_group_package() -> None:
-    selection = parse_targets_env('["dependency-groups.ci:ruff"]')
+    selection = parse_targets_env("dependency-groups.ci:ruff")
     assert selection.dependency_group_packages == {"ci": {"ruff"}}
     assert selection.explicit_groups == {"ci"}
 
 
 def test_parse_targets_env_rejects_dependencies_conflict() -> None:
     with pytest.raises(SystemExit):
-        parse_targets_env('["dependencies","dependencies.packaging"]')
+        parse_targets_env("dependencies, dependencies.packaging")
+
+
+def test_parse_targets_env_csv_ignores_spaces() -> None:
+    selection = parse_targets_env("dependencies, dependency-groups.ci:ruff")
+    assert selection.update_dependencies
+    assert selection.dependency_group_packages == {"ci": {"ruff"}}
 
 
 def test_parse_operators_env_empty_uses_defaults() -> None:
@@ -51,9 +57,14 @@ def test_parse_operators_env_empty_uses_defaults() -> None:
     assert operators == DEFAULT_OPERATORS
 
 
+def test_parse_operators_env_csv_ignores_spaces() -> None:
+    operators = parse_operators_env("==, >=")
+    assert operators == {"==", ">="}
+
+
 def test_parse_operators_env_rejects_unknown_operator() -> None:
     with pytest.raises(SystemExit):
-        parse_operators_env('["==","=>"]')
+        parse_operators_env("==, =>")
 
 
 def test_main_updates_only_selected_dependency_package(
@@ -71,7 +82,7 @@ def test_main_updates_only_selected_dependency_package(
         encoding="utf-8",
     )
 
-    monkeypatch.setenv("BUMPI_UPDATE_TARGETS", '["dependencies:packaging"]')
+    monkeypatch.setenv("BUMPI_UPDATE_TARGETS", "dependencies:packaging")
     monkeypatch.setattr(
         bumpi_main,
         "fetch_latest_version",
@@ -102,7 +113,7 @@ def test_main_updates_only_selected_group_package(
         encoding="utf-8",
     )
 
-    monkeypatch.setenv("BUMPI_UPDATE_TARGETS", '["dependency-groups.ci:ruff"]')
+    monkeypatch.setenv("BUMPI_UPDATE_TARGETS", "dependency-groups.ci:ruff")
     monkeypatch.setattr(
         bumpi_main,
         "fetch_latest_version",
@@ -139,7 +150,7 @@ def test_main_warns_for_group_without_direct_dependencies(
         encoding="utf-8",
     )
 
-    monkeypatch.setenv("BUMPI_UPDATE_TARGETS", '["dependency-groups.dev"]')
+    monkeypatch.setenv("BUMPI_UPDATE_TARGETS", "dependency-groups.dev")
     monkeypatch.setattr(
         bumpi_main,
         "fetch_latest_version",
@@ -172,7 +183,7 @@ def test_main_default_operator_updates_only_eq(
         encoding="utf-8",
     )
 
-    monkeypatch.setenv("BUMPI_UPDATE_TARGETS", '["dependencies"]')
+    monkeypatch.setenv("BUMPI_UPDATE_TARGETS", "dependencies")
     monkeypatch.setattr(
         bumpi_main,
         "fetch_latest_version",
@@ -205,7 +216,7 @@ def test_main_runs_lock_upgrade_when_supported_lock_exists(
 
     calls: list[Path] = []
 
-    monkeypatch.setenv("BUMPI_UPDATE_TARGETS", '["dependencies"]')
+    monkeypatch.setenv("BUMPI_UPDATE_TARGETS", "dependencies")
     monkeypatch.setattr(
         bumpi_main,
         "fetch_latest_version",
@@ -239,7 +250,7 @@ def test_main_skips_lock_upgrade_without_supported_lock(
         nonlocal called
         called = True
 
-    monkeypatch.setenv("BUMPI_UPDATE_TARGETS", '["dependencies"]')
+    monkeypatch.setenv("BUMPI_UPDATE_TARGETS", "dependencies")
     monkeypatch.setattr(
         bumpi_main,
         "fetch_latest_version",
