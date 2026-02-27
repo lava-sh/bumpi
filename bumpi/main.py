@@ -1,11 +1,11 @@
 import json
+import re
 import subprocess
 from dataclasses import dataclass, field
 from os import getenv
 from pathlib import Path
 from typing import NamedTuple
 
-import regex
 from packaging.version import InvalidVersion, Version
 from pyreqwest.exceptions import JSONDecodeError, RequestError
 from pyreqwest.simple.sync_request import pyreqwest_get
@@ -49,12 +49,12 @@ class TargetSelection:
     explicit_groups: set[str] = field(default_factory=set)
 
 
-SECTION_RE = regex.compile(r"^\s*\[([^]]+)]\s*$")
-BUILD_REQUIRES_RE = regex.compile(r"^(\s*)requires(\s*=\s*)\[(.*)$")
-PROJECT_DEPENDENCIES_RE = regex.compile(r"^(\s*)dependencies(\s*=\s*)\[(.*)$")
-GROUP_LIST_RE = regex.compile(r"^(\s*)([A-Za-z0-9_-]+)(\s*=\s*)\[(.*)$")
-QUOTED_RE = regex.compile(r"([\"'])([^\"']*)(\1)")
-SPEC_RE = regex.compile(
+SECTION_RE = re.compile(r"^\s*\[([^]]+)]\s*$")
+BUILD_REQUIRES_RE = re.compile(r"^(\s*)requires(\s*=\s*)\[(.*)$")
+PROJECT_DEPENDENCIES_RE = re.compile(r"^(\s*)dependencies(\s*=\s*)\[(.*)$")
+GROUP_LIST_RE = re.compile(r"^(\s*)([A-Za-z0-9_-]+)(\s*=\s*)\[(.*)$")
+QUOTED_RE = re.compile(r"([\"'])([^\"']*)(\1)")
+SPEC_RE = re.compile(
     r"^(\s*)([A-Za-z0-9][A-Za-z0-9._-]*)(\s*)(===|==|!=|~=|>=|<=|>|<)(\s*)([^\s\"'#,;]+)(\s*)$",
 )
 
