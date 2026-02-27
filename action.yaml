@@ -32,7 +32,7 @@ runs:
 
     - name: "Install bumpi"
       shell: bash
-      run: uv pip install "$GITHUB_ACTION_PATH"
+      run: uv pip install --system "$GITHUB_ACTION_PATH"
 
     - name: "Run bumpi"
       shell: bash
