@@ -1,0 +1,46 @@
+name: "bumpi"
+description: "Update Python package versions"
+author: "chirizxc"
+
+inputs:
+  python-version:
+    description: "Python version used to run bumpi"
+    required: false
+    default: "3.14"
+
+  update-targets:
+    description: 'List of scopes/selectors, e.g. ["dependencies"], ["dependencies:packaging"], ["dependency-groups.ci:ruff"]'
+    required: false
+    default: '["dependencies", "dependency-groups", "build-system.requires"]'
+  update-operators:
+    description: 'List of allowed operators to bump, default ["=="]'
+    required: false
+    default: '["=="]'
+
+runs:
+  using: "composite"
+  steps:
+    - name: "Set up Python"
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    - name: "Install uv"
+      uses: astral-sh/setup-uv@eac588ad8def6316056a12d4907a9d4d84ff7a3b # v7.3.0
+      with:
+        enable-cache: false
+
+    - name: "Install bumpi"
+      shell: bash
+      run: uv pip install "$GITHUB_ACTION_PATH"
+
+    - name: "Run bumpi"
+      shell: bash
+      env:
+        BUMPI_UPDATE_TARGETS: ${{ inputs.update-targets }}
+        BUMPI_UPDATE_OPERATORS: ${{ inputs.update-operators }}
+      run: bumpi
+
+branding:
+  icon: "arrow-up-circle"
+  color: "purple"

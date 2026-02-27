@@ -1,0 +1,41 @@
+[build-system]
+requires = ["uv_build == 0.10.6"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "bumpi"
+module-root = ""
+
+[project]
+name = "bumpi"
+version = "0.0.1"
+description = "Automated pyproject.toml dependency updater with target and operator filters."
+readme = "README.md"
+authors = [
+    { name = "chiri", email = "chirizxc@proton.me" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "packaging == 26.0",
+    "pyreqwest == 0.11.0",
+    "regex == 2026.2.19",
+]
+
+[project.scripts]
+bumpi = "bumpi.main:main"
+
+[dependency-groups]
+typos = ["typos == 1.43.5"]
+zizmor = ["zizmor == 1.22.0"]
+rumdl = ["rumdl == 0.1.31"]
+ci = [
+    "ty == 0.0.19",
+    "ruff == 0.15.4",
+    "pytest == 9.0.2",
+]
+dev = [
+    { include-group = "ci" },
+    { include-group = "typos" },
+    { include-group = "rumdl" },
+    { include-group = "zizmor" },
+]
